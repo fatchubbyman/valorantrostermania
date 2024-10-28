@@ -19,29 +19,9 @@ import random as rd
 import pandas as pd  
 from bs4 import BeautifulSoup
 import requests
-# url = 'https://www.vlr.gg/player/4095/skrossi/'
-# html_text = requests.get(url +'?timespan=all')
-# soup = BeautifulSoup(html_text.text, 'lxml')
-# name = soup.find('h2', class_='player-real-name ge-text-light').text.strip()
-# ign = soup.find('h1', class_='wf-title').text.strip()
-# most_played = soup.find('img', alt = 'jett')
-# img_tag = soup.find('img', alt='jett')
-# if img_tag:
-#     img_src = img_tag.get('alt')
-#     print(f'{img_src}')
-# else:
-#     print("Image not found")
-# country_checker = soup.find('div', class_='ge-text-light')
-# if country_checker:
-#     country = country_checker.get_text(strip=True).title()
-# else:
-#     country = "Country not found"
-# span = soup.find('span', style = 'white-space: nowrap;').text
-# print(span)
 
-# print(f'{name}\'s ign is {ign}')
-# print(country)
 # make a matches system
+
 class Player:
     
     def __init__(self,region,main,acs,kd,ign,name,country,prev,role,price):
@@ -62,35 +42,50 @@ class Team:
         self.region = region
         self.cash = cash
         self.name = name
-        self.luck = luck
         self.matches = matches
 
 links_na = []
 url = 'https://www.vlr.gg/event/stats/2095/champions-tour-2024-americas-stage-2'
 na = requests.get(url).text
 soup = BeautifulSoup(na,'lxml')
-player = soup.find_all('a', href=lambda href: href and '/player/' in href)
+players = soup.find_all('a', href=lambda href: href and '/player/' in href)
 for i in range(58):
-    print(player[i]['href'])
-    links_na.append(player[i]['href'])
+    links_na.append(players[i]['href'])
 
 links_emea = []
 url = 'https://www.vlr.gg/event/stats/2094/champions-tour-2024-emea-stage-2'
 emea = requests.get(url).text
 soup = BeautifulSoup(emea, 'lxml')
-player = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
+players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
 for i in range(56):
-    print(player[i]['href'])
-    links_emea.append(player[i]['href'])
+    links_emea.append(players[i]['href'])
 
 links_apac = []
 url = 'https://www.vlr.gg/event/stats/2005/champions-tour-2024-pacific-stage-2'
 apac = requests.get(url).text
 soup = BeautifulSoup(apac, 'lxml')
-player = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
-for i in range(55):
-    print(player[i]['href'])
-    links_apac.append(player[i]['href'])
+players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
+for i in range(57):
+    links_apac.append(players[i]['href'])
+
+links_china = []
+url = 'https://www.vlr.gg/event/stats/2096/champions-tour-2024-china-stage-2'
+china = requests.get(url).text
+soup = BeautifulSoup(china, 'lxml')
+players = soup.find_all('a',href = lambda href: href and '/player/'in href)
+for i in range(58):
+    links_china.append(players[i]['href'])
+
+#teams
+
+url = 'https://www.vlr.gg/event/1188/champions-tour-2023-lock-in-s-o-paulo/bracket-stage'
+teams_list = []
+teams = requests.get(url).text
+soup = BeautifulSoup(teams,'lxml')
+team = soup.find_all('a', class_ = 'wf-module-item event-team-name')
+print(team)
+
+
 
 
         
