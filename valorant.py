@@ -83,8 +83,9 @@ teams_list = []
 teams = requests.get(url).text
 soup = BeautifulSoup(teams,'lxml')
 team = soup.find_all('a', class_ = 'wf-module-item event-team-name')
-print(team)
-
+for i in range(32):
+    print(team[i].text.strip())
+    teams_list.append(team[i].text.strip())
 
 
 
