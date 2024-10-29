@@ -120,13 +120,14 @@ for i in range(len(emea_team)):
     
 # player pool
 for i in range(len(links_apac)):
-    url = 'https://www.vlr.gg/' + links_apac[i]
+    url = 'https://www.vlr.gg/' + links_apac[i] + '?timespan=all'
     apac_players = requests.get(url).text
     soup = BeautifulSoup(apac_players,'lxml')
     ign = soup.find('h1', class_ = 'wf-title').text
-    main = soup.find()
-    acs = soup.find()
-    kd = soup.find()
+    img_tag = soup.find('img')
+    main = img_tag['alt']
+    acs = soup.find_all('td', class_ = 'mod-right')[1]
+    kd = soup.find_all('td', class_ = 'mod-right')[2]
     name = soup.find()
     prev = soup.find()
     role = soup.find()
