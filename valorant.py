@@ -49,7 +49,7 @@ url = 'https://www.vlr.gg/event/stats/2095/champions-tour-2024-americas-stage-2'
 na = requests.get(url).text
 soup = BeautifulSoup(na,'lxml')
 players = soup.find_all('a', href=lambda href: href and '/player/' in href)
-for i in range(58):
+for i in range(len(players)):
     links_na.append(players[i]['href'])
 
 links_emea = []
@@ -57,7 +57,7 @@ url = 'https://www.vlr.gg/event/stats/2094/champions-tour-2024-emea-stage-2'
 emea = requests.get(url).text
 soup = BeautifulSoup(emea, 'lxml')
 players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
-for i in range(56):
+for i in range(len(players)):
     links_emea.append(players[i]['href'])
 
 links_apac = []
@@ -65,7 +65,7 @@ url = 'https://www.vlr.gg/event/stats/2005/champions-tour-2024-pacific-stage-2'
 apac = requests.get(url).text
 soup = BeautifulSoup(apac, 'lxml')
 players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
-for i in range(57):
+for i in range(len(players)):
     links_apac.append(players[i]['href'])
 
 links_china = []
@@ -73,7 +73,7 @@ url = 'https://www.vlr.gg/event/stats/2096/champions-tour-2024-china-stage-2'
 china = requests.get(url).text
 soup = BeautifulSoup(china, 'lxml')
 players = soup.find_all('a',href = lambda href: href and '/player/'in href)
-for i in range(58):
+for i in range(len(players)):
     links_china.append(players[i]['href'])
 
 #teams
@@ -83,12 +83,54 @@ teams_list = []
 teams = requests.get(url).text
 soup = BeautifulSoup(teams,'lxml')
 team = soup.find_all('a', class_ = 'wf-module-item event-team-name')
-for i in range(32):
+for i in range(len(team)):
     print(team[i].text.strip())
     teams_list.append(team[i].text.strip())
 
+# team pool
 
+url = 'https://www.vlr.gg/event/2095/champions-tour-2024-americas-stage-2/regular-season'
+na_teams = requests.get(url).text
+soup = BeautifulSoup(na_teams,'lxml')
+na_team = soup.find_all('a',class_ = 'wf-module-item event-team-name')
+for i in range(len(na_team)):
+    na_team = Team(name = na_team[i].text.strip(),cash=250000,luck=0,matches=0)
+    na_team[i].text.strip() = na_team
+url = 'https://www.vlr.gg/event/2005/champions-tour-2024-pacific-stage-2/regular-season'
+apac_teams = requests.get(url).text
+soup = BeautifulSoup(apac_teams,'lxml')
+apac_team = soup.find_all('a',class_ = 'wf-module-item event-team-name')
+for i in range(len(apac_team)):
+    apac_team = Team(name = apac_team[i].text.strip(),cash=250000,luck=0,matches=0)
+    apac_team[i].text.strip() = apac_team
+url = 'https://www.vlr.gg/event/2094/champions-tour-2024-emea-stage-2/regular-season'
+emea_teams = requests.get(url).text
+soup = BeautifulSoup(emea_teams,'lxml')
+emea_team = soup.find_all('a',class_ = 'wf-module-item event-team-name')
+for i in range(len(emea_team)):
+    emea_team = Team(name = emea_team[i].text.strip(),cash=250000,luck=0,matches=0)
+    emea_team[i].text.strip() = emea_team
+url = 'https://www.vlr.gg/event/2094/champions-tour-2024-emea-stage-2/regular-season'
+emea_teams = requests.get(url).text
+soup = BeautifulSoup(emea_teams,'lxml')
+emea_team = soup.find_all('a',class_ = 'wf-module-item event-team-name')
+for i in range(len(emea_team)):
+    emea_team = Team(name = emea_team[i].text.strip(),cash=250000,luck=0,matches=0)
+    emea_team[i].text.strip() = emea_team
+    
+# player pool
+for i in range(len(links_apac)):
+    url = 'https://www.vlr.gg/' + links_apac[i]
+    apac_players = requests.get(url).text
+    soup = BeautifulSoup(apac_players,'lxml')
+    ign = soup.find('h1', class_ = 'wf-title').text
+    main = soup.find()
+    acs = soup.find()
+    kd = soup.find()
+    name = soup.find()
+    prev = soup.find()
+    role = soup.find()
+    price = 0                           # twitter followers proportionate to price/interest of orgs
+    
 
-        
-
-
+    
