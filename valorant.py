@@ -56,7 +56,7 @@ links_emea = []
 url = 'https://www.vlr.gg/event/stats/2094/champions-tour-2024-emea-stage-2'
 emea = requests.get(url).text
 soup = BeautifulSoup(emea, 'lxml')
-players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
+players = soup.find_all('a', href=lambda href: href and '/player/' in href)
 for i in range(len(players)):
     links_emea.append(players[i]['href'])
 
@@ -64,7 +64,7 @@ links_apac = []
 url = 'https://www.vlr.gg/event/stats/2005/champions-tour-2024-pacific-stage-2'
 apac = requests.get(url).text
 soup = BeautifulSoup(apac, 'lxml')
-players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
+players = soup.find_all('a', href=lambda href: href and '/player/' in href)    
 for i in range(len(players)):
     links_apac.append(players[i]['href'])
 
