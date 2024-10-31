@@ -44,6 +44,13 @@ class Team:
         self.name = name
         self.matches = matches
 
+# roles
+duelists = ['jett','phoenix','iso','reyna','raze','yoru','neon']
+sentinels = ['sage','killjoy','cypher','deadlock','vyse','chamber']
+controllers = []
+flex = []
+initiators = []
+
 links_na = []
 url = 'https://www.vlr.gg/event/stats/2095/champions-tour-2024-americas-stage-2'
 na = requests.get(url).text
@@ -64,7 +71,7 @@ links_apac = []
 url = 'https://www.vlr.gg/event/stats/2005/champions-tour-2024-pacific-stage-2'
 apac = requests.get(url).text
 soup = BeautifulSoup(apac, 'lxml')
-players = soup.find_all('a', href=lambda href: href and '/player/' in href)    
+players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #Here, lambda href: creates a function that takes one argument, href, representing the value of the href attribute of each <a> tag that soup.find examines.
 for i in range(len(players)):
     links_apac.append(players[i]['href'])
 
@@ -126,12 +133,26 @@ for i in range(len(links_apac)):
     ign = soup.find('h1', class_ = 'wf-title').text
     img_tag = soup.find('img')
     main = img_tag['alt']
-    acs = soup.find_all('td', class_ = 'mod-right')[1]
-    kd = soup.find_all('td', class_ = 'mod-right')[2]
-    name = soup.find()
-    prev = soup.find()
-    role = soup.find()
-    price = 0                           # twitter followers proportionate to price/interest of orgs
-    
+    acs = soup.find_all('td', class_ = 'mod-right')[1].text
+    kd = soup.find_all('td', class_ = 'mod-right')[2].text
+    name = soup.find('h2',class_ = 'player-real-name ge-text-light').text.strip()
+    prev = soup.find('div',style = 'font-weight: 500;').text.strip()
+    role = lambda main: 'duelist' if main in duelists else 'controller' if main in controllers else 'sentinel' if main in sentinels else 'flex' if main in flex else ''
+    link = soup.find('a',href= True)            # twitter followers proportionate to price/interest of orgs
+    if link and 'x.com' in link['href']:
+        xlink = link['href']
+    twitter_get = requests.get(xlink)
+    souperino = BeautifulSoup(twitter_get,'lxml')
+    followers = souperino.find('span',class_ = 'css-1jxf684 r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3').text.split()
+    k = 1000
+    m = 1000000
+    if int(followers) > m:
+        pass
+    elif m > int(followers) > 500000:
+        pass
+    elif 10000 > int(followers) > 0:
+        pass
+    elif 500000 > int(followers) > 10000:
+        pass
 
     
