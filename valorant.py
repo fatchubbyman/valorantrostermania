@@ -1,32 +1,11 @@
-#                                                             ideas/scrapped ideas
-#select region
-#select org
-#have a rostermania, budget based, one import only
-#then make a format like lock//in 2023
-#game mechanics are a best of 5(duel vs. duel,sentinel vs. sentinel)
-#winner wins
-#you lose, you go home
-#a csv file with all the top vct players with their vlr profiles will be in this and a for loop will run to make every player into an object
-# top 10 players of your region of every role will be shown with their budget
-# this project is a personal one to just practice web scraping for the first time and working with objects for the second time
-# americas: https://www.vlr.gg/event/stats/2095/champions-tour-2024-americas-stage-2
-# EMEA: https://www.vlr.gg/event/stats/2094/champions-tour-2024-emea-stage-2
-# APAC: https://www.vlr.gg/event/stats/2005/champions-tour-2024-pacific-stage-2
-# CHINA: https://www.vlr.gg/event/stats/2096/champions-tour-2024-china-stage-2
-# pick 5 players according to budget and then make a LOCK//IN format and every team will get players randomly depending upon their role
-# every role gets a 1v1 and then the winner out of the best of 5 is chosen, the others are automatically done and your games will be watched slowly
 import random as rd
-import pandas as pd  
 from bs4 import BeautifulSoup
 import requests
 
-# make a matches system
-
 class Player:
     
-    def __init__(self,region,main,acs,kd,ign,name,country,prev,role,price):
+    def __init__(self,region,acs,kd,ign,country,prev,role,price,twitter_fllwrs):
         self.region = region
-        self.main = main
         self.acs = acs
         self.kd = kd
         self.ign = ign
@@ -35,10 +14,11 @@ class Player:
         self.prev = prev
         self.role = role
         self.price = price
+        self.twitter_fllwrs = twitter_fllwrs
 
 class Team:
     
-    def __init__(self,region,name,cash,luck,matches):
+    def __init__(self,region,name,cash,matches):
         self.region = region
         self.cash = cash
         self.name = name
@@ -47,10 +27,20 @@ class Team:
 # roles
 duelists = ['jett','phoenix','iso','reyna','raze','yoru','neon']
 sentinels = ['sage','killjoy','cypher','deadlock','vyse','chamber']
-controllers = []
-flex = []
-initiators = []
+controllers = ['viper','omen','brimstone','harbor','clove','astra']
+initiators = ['sova','breach','fade','skye','gekko','kayo']
 
+def role_finder(main1,main2):
+    if main1 and main2 in duelists:
+        role = 'duelist'
+    elif main1 and main2 in sentinels:
+        role = 'sentinel'
+    elif main1 and main2 in controllers:
+        role = 'controller'
+    elif main1 and main2 in initiators:
+        role = 'initiator'
+    else:
+        role = 'flex'
 links_na = []
 url = 'https://www.vlr.gg/event/stats/2095/champions-tour-2024-americas-stage-2'
 na = requests.get(url).text
@@ -75,24 +65,6 @@ players = soup.find_all('a', href=lambda href: href and '/player/' in href)    #
 for i in range(len(players)):
     links_apac.append(players[i]['href'])
 
-links_china = []
-url = 'https://www.vlr.gg/event/stats/2096/champions-tour-2024-china-stage-2'
-china = requests.get(url).text
-soup = BeautifulSoup(china, 'lxml')
-players = soup.find_all('a',href = lambda href: href and '/player/'in href)
-for i in range(len(players)):
-    links_china.append(players[i]['href'])
-
-#teams
-
-url = 'https://www.vlr.gg/event/1188/champions-tour-2023-lock-in-s-o-paulo/bracket-stage'
-teams_list = []
-teams = requests.get(url).text
-soup = BeautifulSoup(teams,'lxml')
-team = soup.find_all('a', class_ = 'wf-module-item event-team-name')
-for i in range(len(team)):
-    print(team[i].text.strip())
-    teams_list.append(team[i].text.strip())
 
 # team pool
 
@@ -117,19 +89,14 @@ emea_team = soup.find_all('a',class_ = 'wf-module-item event-team-name')
 for i in range(len(emea_team)):
     emea_team = Team(name = emea_team[i].text.strip(),cash=250000,luck=0,matches=0)
     emea_team[i].text.strip() = emea_team
-url = 'https://www.vlr.gg/event/2094/champions-tour-2024-emea-stage-2/regular-season'
-emea_teams = requests.get(url).text
-soup = BeautifulSoup(emea_teams,'lxml')
-emea_team = soup.find_all('a',class_ = 'wf-module-item event-team-name')
-for i in range(len(emea_team)):
-    emea_team = Team(name = emea_team[i].text.strip(),cash=250000,luck=0,matches=0)
-    emea_team[i].text.strip() = emea_team
     
 # player pool
 for i in range(len(links_apac)):
     url = 'https://www.vlr.gg/' + links_apac[i] + '?timespan=all'
     apac_players = requests.get(url).text
     soup = BeautifulSoup(apac_players,'lxml')
+    #attributes
+    country = soup.find('div', class_ = 'ge-text-light').text.strip()
     ign = soup.find('h1', class_ = 'wf-title').text
     img_tag = soup.find('img')
     main = img_tag['alt']
@@ -137,7 +104,6 @@ for i in range(len(links_apac)):
     kd = soup.find_all('td', class_ = 'mod-right')[2].text
     name = soup.find('h2',class_ = 'player-real-name ge-text-light').text.strip()
     prev = soup.find('div',style = 'font-weight: 500;').text.strip()
-    role = lambda main: 'duelist' if main in duelists else 'controller' if main in controllers else 'sentinel' if main in sentinels else 'flex' if main in flex else ''
     link = soup.find('a',href= True)            # twitter followers proportionate to price/interest of orgs
     if link and 'x.com' in link['href']:
         xlink = link['href']
@@ -154,5 +120,10 @@ for i in range(len(links_apac)):
         pass
     elif 500000 > int(followers) > 10000:
         pass
+    pacific = Player(region = 'APAC',role=,acs=,kd=,country=country,ign = ign,prev=prev,)
 
-    
+# systems that need to be in place:
+# role finder: this basically looks at the most agents played by a player and assigns them with a role
+# real tournament with a format and all the objects should be created and assigned to interact with each other
+# twitter follower count which identifies the demand for the player
+# player picker: a for loop will run for
