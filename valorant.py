@@ -21,22 +21,21 @@ class Player:
         self.role = role
         self.price = price
         self.twitter_fllwrs = twitter_fllwrs
-        self.link
+        self.link = link
 
         
 class Team:
     
-    def __init__(self,region,name,cash,matches):
-        self.region = region
-        self.cash = cash
+    def __init__(self,name,region,matches= 0):
+        self.metches = matches
         self.name = name
-        self.matches = matches
+        self.region = region
 
 # roles
-duelists = ['jett','phoenix','iso','reyna','raze','yoru','neon']
+duelists = ['jett','phoenix','iso','reyna','raze','yoru','neon','chamber']
 sentinels = ['sage','killjoy','cypher','deadlock','vyse','chamber','viper']
 controllers = ['viper','omen','brimstone','harbor','clove','astra']
-initiators = ['sova','breach','fade','skye','gekko','kay/o']
+initiators = ['sova','breach','fade','skye','gekko','kayo']
 
 def role_finder(main1,main2):
     if main1 and main2 in duelists:
@@ -51,29 +50,49 @@ def role_finder(main1,main2):
         role = 'flex'
     return role
 
-# americas
-region_tournaments = ['/2095/champions-tour-2024-americas-stage-2','/2005/champions-tour-2024-pacific-stage-2','/2094/champions-tour-2024-emea-stage-2']
+# making every player an object
+regions = ['APAC','EMEA',"Americas"]
+region_tournaments = ['','/2005/champions-tour-2024-pacific-stage-2','/2094/champions-tour-2024-emea-stage-2']
 for i in range(len(region_tournaments)):
-    url = 'https://www.vlr.gg/event/stats' + region_tournaments[0]
+    url = 'https://www.vlr.gg/event/stats' + region_tournaments[i]
     clickr = requests.get(url)
     soup = BeautifulSoup(clickr, 'lxml')
     players = soup.find_all('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;' )
-    for i in range(len(players)):
+    for j in range(len(players)):
         tbody = soup.find('tbody')
-        trs = tbody.find_all('tr')[i]   # every player has a trs
+        trs = tbody.find_all('tr')[j]   # every player has a tr
         stats = trs.find_all('span')
         acs = stats[1].text
         kd = stats[2].text
         prev = trs.find('div',class_ = 'stats-player-country').text
         agent_list = []
         agents = trs.find_all('img', class_ = 'mod-small')
-        for i in range(len(agents)):
+        for k in range(len(agents)):
             agents[i].replace('<img class="mod-small" src="/img/vlr/game/agents/','')
             agents[i].replace('.png','')
-            agent_list.append(agents[i])
+            agent_list.append(agents[k])
         role_finder(agent_list[0],agent_list[1])
-        link = trs.find()
-        Player(ign=players[i].text,acs = acs,kd=kd,prev = prev,role=role,price=,twitter_fllwrs=,country=,link=)
+        link = trs.find('a')
+        lnk = link.get('href')
+        url = 'https://www.vlr.gg/' + lnk
+        #twitter time
+        player_clicked = requests.get(url).text
+        soupy = BeautifulSoup(player_clicked,'lxml')
+        country = soupy.find('div', class_ = 'ge-text-light').text
+        twitter_tag = soupy.find('a')
+        twitter_link = twitter_tag.get('href')
+        twt_clicked = requests.get(twitter_link,'lxml')
+        tsoup = BeautifulSoup(twitter_link,'lxml')
+        followers = tsoup.find()
+        region = regions[i]
+        Player(ign=players[j].text,acs = acs,kd=kd,prev = prev,role=role,price=,twitter_fllwrs=,country=country,link=lnk)
+# twitter follower work to be done here
+
+
+    
+        
+
+
 
 
 
