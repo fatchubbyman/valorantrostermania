@@ -13,6 +13,7 @@ import time
 
 def wait():
     for i in range(3):
+        print('.')
         time.sleep(0.5)
 
 
@@ -94,10 +95,13 @@ for i in range(len(region_tournaments)):
         Player(ign=players[j].text,acs = acs,kd=kd,prev = prev,role=role,price=,twitter_fllwrs=,country=country,link=lnk)
 # twitter follower work to be done here
 
-# teams
-teams_na = []
-teams_apac = []
-teams_emea = []
+
+teams_na = {}
+teams_apac = {}
+teams_emea = {}
+teams2 = [teams_na,teams_apac,teams_emea]
+
+region = input('What region would you like to represent?(Americas/EMEA/APAC) ')
 for i in range(len(region_tournaments)):
     url = 'https://www.vlr.gg/event' + region_tournaments[i] + '/regular-season'
     teams = requests.get(url)
@@ -107,23 +111,19 @@ for i in range(len(region_tournaments)):
     for j in range(len(teams)):
         team = Team(name=teams[j].text.strip(),region=regions[i])
         if team.region == 'Americas':
-            teams_na.append(team.name)
+            teams_na[team.name] = team
         elif team.region == 'APAC':
-            teams_apac.append(team.name)
+            teams_apac[team.name] = team
         elif team.region == 'EMEA':
-            teams_emea.append(team.name)
-
-region = input('What region would you like to represent?(Americas/EMEA/APAC) ')
+            teams_emea[team.name] = team
 if region.lower() == 'americas':
-    for team in teams_na:
-        print(team)
+    for team in teams_na.keys():
+        print(team.name)
 elif region.lower() == 'emea':
-    for team in teams_emea:
-        print(team)
+    for team in teams_emea.keys():
+        print(team.name)
 elif region.lower() == 'apac':
-    for team in teams_apac:
-        print(team)
-wait()
-team = input(f'What team do you want to pick from the {region} region?')
+    for team in teams_apac.keys():
+        print(team.name)
+your_team = input(f'What team do you want to pick from the {region} region?')
 
-    
