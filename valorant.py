@@ -9,6 +9,12 @@
 import random as rd
 from bs4 import BeautifulSoup
 import requests
+import time
+
+def wait():
+    for i in range(3):
+        time.sleep(0.5)
+
 
 class Player:
     
@@ -51,8 +57,8 @@ def role_finder(main1,main2):
     return role
 
 # making every player an object
-regions = ['APAC','EMEA',"Americas"]
-region_tournaments = ['','/2005/champions-tour-2024-pacific-stage-2','/2094/champions-tour-2024-emea-stage-2']
+regions = ["Americas",'APAC','EMEA']
+region_tournaments = ['/2095/champions-tour-2024-americas-stage-2','/2005/champions-tour-2024-pacific-stage-2','/2094/champions-tour-2024-emea-stage-2']
 for i in range(len(region_tournaments)):
     url = 'https://www.vlr.gg/event/stats' + region_tournaments[i]
     clickr = requests.get(url)
@@ -88,11 +94,36 @@ for i in range(len(region_tournaments)):
         Player(ign=players[j].text,acs = acs,kd=kd,prev = prev,role=role,price=,twitter_fllwrs=,country=country,link=lnk)
 # twitter follower work to be done here
 
+# teams
+teams_na = []
+teams_apac = []
+teams_emea = []
+for i in range(len(region_tournaments)):
+    url = 'https://www.vlr.gg/event' + region_tournaments[i] + '/regular-season'
+    teams = requests.get(url)
+    soup = BeautifulSoup(teams.content,'lxml')
+    teams_tag = soup.find('div',class_ = 'event-teams-container')
+    teams = teams_tag.find_all('a',class_ = 'wf-module-item event-team-name')
+    for j in range(len(teams)):
+        team = Team(name=teams[j].text.strip(),region=regions[i])
+        if team.region == 'Americas':
+            teams_na.append(team.name)
+        elif team.region == 'APAC':
+            teams_apac.append(team.name)
+        elif team.region == 'EMEA':
+            teams_emea.append(team.name)
+
+region = input('What region would you like to represent?(Americas/EMEA/APAC) ')
+if region.lower() == 'americas':
+    for team in teams_na:
+        print(team)
+elif region.lower() == 'emea':
+    for team in teams_emea:
+        print(team)
+elif region.lower() == 'apac':
+    for team in teams_apac:
+        print(team)
+wait()
+team = input(f'What team do you want to pick from the {region} region?')
 
     
-        
-
-
-
-
-
