@@ -60,10 +60,15 @@ def role_finder(main1,main2):
 # making every player an object
 regions = ["Americas",'APAC','EMEA']
 region_tournaments = ['/2095/champions-tour-2024-americas-stage-2','/2005/champions-tour-2024-pacific-stage-2','/2094/champions-tour-2024-emea-stage-2']
+duelist_players = []
+sentinel_players = []
+initiator_players = []
+flex_players = []
+
 for i in range(len(region_tournaments)):
     url = 'https://www.vlr.gg/event/stats' + region_tournaments[i]
     clickr = requests.get(url)
-    soup = BeautifulSoup(clickr, 'lxml')
+    soup = BeautifulSoup(clickr.content, 'lxml')
     players = soup.find_all('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;' )
     for j in range(len(players)):
         tbody = soup.find('tbody')
@@ -78,7 +83,7 @@ for i in range(len(region_tournaments)):
             agents[i].replace('<img class="mod-small" src="/img/vlr/game/agents/','')
             agents[i].replace('.png','')
             agent_list.append(agents[k])
-        role_finder(agent_list[0],agent_list[1])
+        role_finder(agent_list[0],agent_list[1])    #returns a role
         link = trs.find('a')
         lnk = link.get('href')
         url = 'https://www.vlr.gg/' + lnk
@@ -96,12 +101,12 @@ for i in range(len(region_tournaments)):
 # twitter follower work to be done here
 
 
-teams_na = {}
+teams_na = {}    #team.name: object of the team
 teams_apac = {}
 teams_emea = {}
-teams2 = [teams_na,teams_apac,teams_emea]
+teams2 = [teams_na.keys(),teams_apac.keys(),teams_emea.keys()]
 
-region = input('What region would you like to represent?(Americas/EMEA/APAC) ')
+region = input('What region would you like to represent?(Americas/APAC/EMEA) ')
 for i in range(len(region_tournaments)):
     url = 'https://www.vlr.gg/event' + region_tournaments[i] + '/regular-season'
     teams = requests.get(url)
@@ -118,12 +123,20 @@ for i in range(len(region_tournaments)):
             teams_emea[team.name] = team
 if region.lower() == 'americas':
     for team in teams_na.keys():
-        print(team.name)
-elif region.lower() == 'emea':
-    for team in teams_emea.keys():
-        print(team.name)
+        print(team)
 elif region.lower() == 'apac':
     for team in teams_apac.keys():
-        print(team.name)
-your_team = input(f'What team do you want to pick from the {region} region?')
+        print(team)
+elif region.lower() == 'emea':
+    for team in teams_emea.keys():
+        print(team)
+
+
+your_team = input(f'\nWhat team do you want to pick from the {region} region?')
+
+
+
+
+
+
 
