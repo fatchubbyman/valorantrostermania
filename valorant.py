@@ -29,20 +29,45 @@ class Player:
         self.price = price
         self.twitter_fllwrs = twitter_fllwrs
         self.link = link
+        self.region = region
 
         
 class Team:
     
-    def __init__(self,name,region,matches= 0):
+    def __init__(self,name,region,matches= 0,purse = 300000):
         self.metches = matches
         self.name = name
         self.region = region
+        self.purse = purse
 
 # roles
 duelists = ['jett','phoenix','iso','reyna','raze','yoru','neon','chamber']
 sentinels = ['sage','killjoy','cypher','deadlock','vyse','chamber','viper']
 controllers = ['viper','omen','brimstone','harbor','clove','astra']
 initiators = ['sova','breach','fade','skye','gekko','kayo']
+
+def teams_shower(region):
+    if region.lower() == 'americas':
+        for i in range(len(teams_na.keys())):
+            print(teams_na.keys()[i])
+    if region.lower() == 'apac':
+        for i in range(len(teams_apac.keys())):
+            print(teams_na.keys()[i])
+    elif region.lower() == 'emea':
+        for i in range(len(teams_emea.keys())):
+            print(teams_emea.keys()[i])
+
+def teams_picker(region,team_name):
+    if region.lower() == 'americas':
+        if team_name in teams_na.keys():
+            teams_na['your team'] = teams_na.pop(team_name)
+    if region.lower() == 'apac':
+        if team_name in teams_apac.keys():
+            teams_apac['your team'] = teams_apac.pop(team_name)
+    elif region.lower() == 'emea':
+        if team_name in teams_emea.keys():
+            teams_emea['your team'] = teams_emea.pop(team_name)
+      
 
 def role_finder(main1,main2):
     if main1 and main2 in duelists:
@@ -57,6 +82,32 @@ def role_finder(main1,main2):
         role = 'flex'
     return role
 
+def duelist_printer(region):
+    if region.lower() == 'americas':
+        for i in range(len(players_na.values())):
+            if players_na.values()[i].role == 'duelist':
+                print(f'{players_na.values()[i].name}\n{players_na.values()[i].acs}\n{players_na.values()[i].kd}\n{players_na.values()[i].prev}\n{players_na.values()[i].twitter_fllwrs}\n{players_na.values()[i].country}\n{players_na.values()[i].price}')
+                time.sleep(2)
+    if region.lower() == 'apac':
+        for i in range(len(players_na.values())):
+            if players_na.values()[i].role == 'duelist':
+                print(f'{players_na.values()[i].name}\n{players_na.values()[i].acs}\n{players_na.values()[i].kd}\n{players_na.values()[i].prev}\n{players_na.values()[i].twitter_fllwrs}\n{players_na.values()[i].country}\n{players_na.values()[i].price}')
+                time.sleep(2)
+            print(teams_na.keys()[i])
+    elif region.lower() == 'emea':
+        for i in range(len(players_na.values())):
+            if players_na.values()[i].role == 'duelist':
+                print(f'{players_na.values()[i].name}\n{players_na.values()[i].acs}\n{players_na.values()[i].kd}\n{players_na.values()[i].prev}\n{players_na.values()[i].twitter_fllwrs}\n{players_na.values()[i].country}\n{players_na.values()[i].price}')
+                time.sleep(2)
+    
+
+
+
+# sentinel_printer(region)
+# smokes_printer(region)
+# initiator_printer(region)
+# flex_printer(region)
+
 # making every player an object
 regions = ["Americas",'APAC','EMEA']
 region_tournaments = ['/2095/champions-tour-2024-americas-stage-2','/2005/champions-tour-2024-pacific-stage-2','/2094/champions-tour-2024-emea-stage-2']
@@ -64,6 +115,11 @@ duelist_players = []
 sentinel_players = []
 initiator_players = []
 flex_players = []
+smoke_players = []
+
+players_na = {}
+players_apac = {}
+players_emea = {}
 
 for i in range(len(region_tournaments)):
     url = 'https://www.vlr.gg/event/stats' + region_tournaments[i]
@@ -72,10 +128,13 @@ for i in range(len(region_tournaments)):
     players = soup.find_all('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;' )
     for j in range(len(players)):
         tbody = soup.find('tbody')
+
         trs = tbody.find_all('tr')[j]   # every player has a tr
         stats = trs.find_all('span')
+
         acs = stats[1].text
         kd = stats[2].text
+
         prev = trs.find('div',class_ = 'stats-player-country').text
         agent_list = []
         agents = trs.find_all('img', class_ = 'mod-small')
@@ -83,7 +142,7 @@ for i in range(len(region_tournaments)):
             agents[i].replace('<img class="mod-small" src="/img/vlr/game/agents/','')
             agents[i].replace('.png','')
             agent_list.append(agents[k])
-        role_finder(agent_list[0],agent_list[1])    #returns a role
+        role = role_finder(agent_list[0],agent_list[1])    #returns a role
         link = trs.find('a')
         lnk = link.get('href')
         url = 'https://www.vlr.gg/' + lnk
@@ -97,14 +156,20 @@ for i in range(len(region_tournaments)):
         tsoup = BeautifulSoup(twitter_link,'lxml')
         followers = tsoup.find()
         region = regions[i]
-        Player(ign=players[j].text,acs = acs,kd=kd,prev = prev,role=role,price=,twitter_fllwrs=,country=country,link=lnk)
+        player = Player(ign=players[j].text,acs = acs,kd=kd,prev = prev,role=role,price=,twitter_fllwrs=,country=country,link=lnk,region=region)
+        if i == 0:
+            players_na[player.name] = player
+        elif i == 1:
+            players_apac[player.name] = player
+        elif i == 2:
+            players_emea[player.name] = player
 # twitter follower work to be done here
 
 
-teams_na = {}    #team.name: object of the team
+teams_na = {}                #team.name: object of the team
 teams_apac = {}
 teams_emea = {}
-teams2 = [teams_na.keys(),teams_apac.keys(),teams_emea.keys()]
+teams2 = [teams_na.keys(),teams_apac.keys(),teams_emea.keys()]                    #team names
 
 region = input('What region would you like to represent?(Americas/APAC/EMEA) ')
 for i in range(len(region_tournaments)):
@@ -121,21 +186,26 @@ for i in range(len(region_tournaments)):
             teams_apac[team.name] = team
         elif team.region == 'EMEA':
             teams_emea[team.name] = team
-if region.lower() == 'americas':
-    for team in teams_na.keys():
-        print(team)
-elif region.lower() == 'apac':
-    for team in teams_apac.keys():
-        print(team)
-elif region.lower() == 'emea':
-    for team in teams_emea.keys():
-        print(team)
+
+your_team = input(f'Which team do you want to play as in the {region} region')
+teams_shower(region)
+teams_picker(region,your_team)
+
+duelist_printer(region)
+duelist_pick = input('Who are you going to pick as your duelist? ')
 
 
-your_team = input(f'\nWhat team do you want to pick from the {region} region?')
+sentinel_printer(region)
+sneintel_pick = input('Who are you going to pick as your duelist? ')
 
+smokes_printer(region)
+smokes_pick = input('Who are you going to pick as your duelist? ')
 
+initiator_printer(region)
+initiator_pick = input('Who are you going to pick as your duelist? ')
 
+flex_printer(region)
+flex_pick = input('Who are you going to pick as your duelist? ')
 
 
 
