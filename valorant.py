@@ -21,7 +21,8 @@ class Team:
         self.name = name
         self.players = players
 
-players = {}                                       # (player.name:Player)
+players = {}                                       # (player.name: Player)
+teams = {}                                         # (team.name: Team)
 #automating teams for the rest of the 2 regions
 def region_maker(links,players):
     for link in links:
@@ -31,20 +32,15 @@ def region_maker(links,players):
         teams_tags = teams.find_all('div', class_ = 'wf-card event-team')
         for team in teams_tags:
             a_tag = team.find('a', class_ = 'wf-module-item event-team-name')
-            a_tag.text.strip() = Team(name = a_tag.text.strip())
-            p1 = team.find('a',class_ = 'wf-module-item mod-first event-team-players-item')
-            players['p1'] = p1.get('href')
-            player_tags = team.find_all('a', class_='wf-module-item event-team-players-item')
-            for player in player_tags:
-                players[f'{player.text.strip()}'] = player.get('href')
+            teams[a_tag.text.strip()] = Team(name = a_tag.text.strip())
         stats_link = link.replace('/event','/event/stats')
         stats_link = stats_link.replace('/regular-season','')
         rqsts = requests.get(stats_link)
         soup = BeautifulSoup(rqsts.content,'lxml')
         trs = soup.find_all('tr')
-        agents = []
         for tr in trs:
-            name = tr.find('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;')
+            agents = []
+            name = tr.find('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;').text.strip()
             data = tr.find_all('td')
             acs = float(data[4].text.strip())
             kd = float(data[5].text.strip())
@@ -55,6 +51,15 @@ def region_maker(links,players):
                 agent_src = img_tag.get('src')
                 agent_name = agent_src.replace('/img/vlr/game/agents/','')
                 agents.append(agent_name.replace('.png',''))
+            role = role_maker(agents)
+            prev = tr.find('div', class_ = 'stats-player-country').text.strip()
+            #href
+            href_tag = tr.find('a', style = 'display: flex; align-items: center; padding-right: 0;')
+            href = href_tag.get('href')
+            players[name] = Player(kd=kd,acs=acs,href=href,prev=prev)
+
+
+
 
 def role_maker(agents):
     pass
