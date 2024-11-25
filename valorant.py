@@ -117,6 +117,13 @@ class MyPlayer(Player):
         self.price = price
 
 class MyTeam(Team):
-    def __init__(self, name, squad={}):
+    def __init__(self, name, squad={},matches = 0):
         super().__init__(name, squad)
+        self.matches = matches
+
+region_maker(links=links,players=players,teams=teams)
+rqsts = requests.get(region)
+soup = BeautifulSoup(rqsts.content,'lxml')
+# display teams and then select a team and make the others into team objects
+
 
