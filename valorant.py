@@ -1,3 +1,5 @@
+                                              #nested dictionaries of objects
+
 import random as rd
 from bs4 import BeautifulSoup
 import requests
@@ -15,9 +17,9 @@ class Player:
 
 class Team:
 
-    def __init__(self,name,players={}):
+    def __init__(self,name,squad={}):
         self.name = name
-        self.players = players
+        self.squad = squad
 
 def wait():
     for i in range(3):
@@ -52,18 +54,18 @@ def role_maker(agents):
         elif maker['sentinels'] > len(agents)/2:
             return 'sentinel'
 
-players = {}                                       # (player.name: Player)
-teams = {}                                         # (team.name: Team)
+players = {}                                           # (player.name: Player)
+teams = {}                                            # (team.name: Team)
 #automating teams for the rest of the 2 regions
-def region_maker(links,players):
+def region_maker(links,players,teams):
     for link in links:
         rqsts = requests.get(link)
         soup = BeautifulSoup(rqsts.content,'lxml')
-        teams = soup.find('div', class_ = 'event-teams-container')
-        teams_tags = teams.find_all('div', class_ = 'wf-card event-team')
+        teamsx = soup.find('div', class_ = 'event-teams-container')
+        teams_tags = teamsx.find_all('div', class_ = 'wf-card event-team')
         for team in teams_tags:
             a_tag = team.find('a', class_ = 'wf-module-item event-team-name')
-            teams[a_tag.text.strip()] = Team(name = a_tag.text.strip())
+            teams[a_tag.text.strip()] = Team(name = a_tag.text.strip(),squad={})
         stats_link = link.replace('/event','/event/stats')
         stats_link = stats_link.replace('/regular-season','')
         rqsts = requests.get(stats_link)
@@ -89,6 +91,13 @@ def region_maker(links,players):
             if href_tag:
                 href = href_tag.get('href')
             players[ign] = Player(kd=kd,acs=acs,href=href,prev=prev,role=role,ign=ign)
+        for key,value in teams.items():
+            for i in range(5):
+                random_player_key = rd.choice(list(players.keys()))
+                random_player_object = players.pop(random_player_key)
+                value.squad[random_player_key] = random_player_object
+
+
 
 links = ['https://www.vlr.gg/event/2094/champions-tour-2024-emea-stage-2/regular-season','https://www.vlr.gg/event/2005/champions-tour-2024-pacific-stage-2/regular-season','https://www.vlr.gg/event/2095/champions-tour-2024-americas-stage-2/regular-season']
 stats = {'emea':'https://www.vlr.gg/event/stats/2094/champions-tour-2024-emea-stage-2','apac':'https://www.vlr.gg/event/stats/2005/champions-tour-2024-pacific-stage-2','americas':'https://www.vlr.gg/event/stats/2095/champions-tour-2024-americas-stage-2'}
@@ -101,3 +110,13 @@ elif region_select == 'apac':
 else:
     region = links.pop(2)
 # your own region process
+class MyPlayer(Player):
+    def __init__(self, acs, kd, ign, prev, role, href,twitter_flwrs,price):
+        super().__init__(acs, kd, ign, prev, role, href)
+        self.twitter_flwrs = twitter_flwrs
+        self.price = price
+
+class MyTeam(Team):
+    def __init__(self, name, squad={}):
+        super().__init__(name, squad)
+
