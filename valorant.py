@@ -4,6 +4,7 @@ import random as rd
 from bs4 import BeautifulSoup
 import requests
 import time
+import selenium
 
 class Player:
     
@@ -27,16 +28,18 @@ def wait():
         time.sleep(0.4)
 
 def price_maker(href):
-    url = 'https://www.vlr.gg/' + href
+    url = 'https://www.vlr.gg' + href
     rqsts = requests.get(url)
     soup = BeautifulSoup(rqsts.content,'lxml')
     a_tag = soup.find('a', style ='margin-top: 3px; display: block;')
     twitter = a_tag.get('href')
-    rqsts2 = requests.get(twitter)
-    soup2 = BeautifulSoup(rqsts2.content,'lxml')
-    follow_tag = soup2.find('div', class_ = 'css-175oi2r r-13awgt0 r-18u37iz r-1w6e6rj')
-    followers = follow_tag.find('span', class_ = 'css-1jxf684 r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3')
-    print(followers.text.strip())
+    twitter = twitter.replace('https://x.com','')
+    social_blade = 'https://socialblade.com/twitter/user' + twitter
+    rqsts = requests.get(social_blade)
+    soup = BeautifulSoup(rqsts.content,'lxml')
+    stats = soup.find('div', id = 'YouTubeUserTopInfoBlockTop')
+    followers = stats.find('span', style = 'font-weight: bold;')
+
 
 def role_maker(agents):
     duelists = ['neon','raze','jett','phoenix','yoru','iso','reyna','chamber']
@@ -167,14 +170,19 @@ for tr in trs:
 
 #picking up a duelist, and displaying
 for key,value in players.items():
+    a  = 1
     if value.role == 'duelist':
-        print(value.ign)
+        print(f'{a}. {value.ign}')
         print(value.price)
         print(value.acs)
         print(value.kd)
         print(value.prev)
         print(value.role)
+        a += 1
+        wait()
+
 duelist_pick = input('Select the player no. ')
+your_team.squad['duelist'] = 
 
 
 
