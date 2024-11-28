@@ -45,6 +45,18 @@ def wait():
         print('.')
         time.sleep(0.4)
 
+def convert_to_int(value: str) -> int:
+    suffixes = {'K': 10**3, 'M': 10**6, 'B': 10**9}
+    # Extract the number and the suffix
+    number, suffix = value[:-1], value[-1].upper()
+    
+    # Handle the conversion
+    if suffix in suffixes:
+        return int(float(number) * suffixes[suffix])
+    else:
+        # If no suffix, convert the string to an integer
+        return int(number)
+
 def price_maker(href):
     url = 'https://www.vlr.gg' + href
     rqsts = requests.get(url)
@@ -54,7 +66,7 @@ def price_maker(href):
     twitter = a_tag.get('href')
     twitter = twitter.replace('https://x.com','')
     followers = follower_retriever(twitter,name)
-    
+    followers = convert_to_int(followers)
 
 
 def role_maker(agents):
