@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import selenium
+import os
 
 class Player:
     
@@ -22,8 +23,25 @@ class Team:
         self.name = name
         self.squad = squad
 
+def follower_retriever(url,name):
+    folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'
+    file_name = f'{name}.html'
+    file_path = os.path.join(folder_name, file_name)
+    os.makedirs(folder_name, exist_ok=True)
+    response = requests.get(url)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.write(response.text)
+    with open(file_path, 'r', encoding='utf-8') as file:
+        soup = BeautifulSoup(file,'lxml')
+        div_tag = soup.find('div', class_ = 'css-175oi2r r-13awgt0 r-18u37iz r-1w6e6rj')
+        a_tag = div_tag.find('a', class_ = 'css-146c3p1 r-bcqeeo r-1ttztb7 r-qvutc0 r-37j5jr r-a023e6 r-rjixqe r-16dba41 r-1loqt21')
+        followers = a_tag.find('span', class_ = 'css-1jxf684 r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3').text.strip()
+    return followers
+
 def wait():
-    for i in range(3):
+    for i in range(2):
         print('.')
         time.sleep(0.4)
 
@@ -31,14 +49,12 @@ def price_maker(href):
     url = 'https://www.vlr.gg' + href
     rqsts = requests.get(url)
     soup = BeautifulSoup(rqsts.content,'lxml')
+    name = soup.find('h1', class_ = 'wf-title').text.strip()
     a_tag = soup.find('a', style ='margin-top: 3px; display: block;')
     twitter = a_tag.get('href')
     twitter = twitter.replace('https://x.com','')
-    social_blade = 'https://socialblade.com/twitter/user' + twitter
-    rqsts = requests.get(social_blade)
-    soup = BeautifulSoup(rqsts.content,'lxml')
-    stats = soup.find('div', id = 'YouTubeUserTopInfoBlockTop')
-    followers = stats.find('span', style = 'font-weight: bold;')
+    followers = follower_retriever(twitter,name)
+    
 
 
 def role_maker(agents):
@@ -118,6 +134,8 @@ elif region_select == 'apac':
 else:
     region = links.pop(2)
 # your own region process
+
+
 class MyPlayer(Player):
     def __init__(self, acs, kd, ign, prev, role, href,price):
         super().__init__(acs, kd, ign, prev, role, href)
@@ -181,16 +199,10 @@ for key,value in players.items():
         a += 1
         wait()
 
-duelist_pick = input('Select the player no. ')
-your_team.squad['duelist'] = 
-
-
-
-
-
-
-
-
+#picking up a sentinel, and displaying
+#picking up a initiator, and displaying
+#picking up a controller, and displaying
+#picking up a flex, and displaying
 
 for key,value in teams.items():
     for i in range(5):
