@@ -1,10 +1,8 @@
                                               #nested dictionaries of objects
-
 import random as rd
 from bs4 import BeautifulSoup
 import requests
 import time
-import selenium
 import os
 
 class Player:
@@ -38,7 +36,7 @@ def follower_retriever(url,name):
         div_tag = soup.find('div', class_ = 'css-175oi2r r-13awgt0 r-18u37iz r-1w6e6rj')
         a_tag = div_tag.find('a', class_ = 'css-146c3p1 r-bcqeeo r-1ttztb7 r-qvutc0 r-37j5jr r-a023e6 r-rjixqe r-16dba41 r-1loqt21')
         followers = a_tag.find('span', class_ = 'css-1jxf684 r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3').text.strip()
-    return followers
+        return followers
 
 def wait():
     for i in range(2):
@@ -47,29 +45,33 @@ def wait():
 
 def convert_to_int(value: str) -> int:
     suffixes = {'K': 10**3, 'M': 10**6, 'B': 10**9}
-    # Extract the number and the suffix
     number, suffix = value[:-1], value[-1].upper()
-    
-    # Handle the conversion
     if suffix in suffixes:
         return int(float(number) * suffixes[suffix])
     else:
-        # If no suffix, convert the string to an integer
         return int(number)
 
-def price_maker(href):
+def price_maker(href:str):
     url = 'https://www.vlr.gg' + href
     rqsts = requests.get(url)
     soup = BeautifulSoup(rqsts.content,'lxml')
     name = soup.find('h1', class_ = 'wf-title').text.strip()
     a_tag = soup.find('a', style ='margin-top: 3px; display: block;')
     twitter = a_tag.get('href')
-    twitter = twitter.replace('https://x.com','')
     followers = follower_retriever(twitter,name)
     followers = convert_to_int(followers)
+    if followers > 100000:
+        price = 100000
+    elif 40000 > followers > 5000:
+        price = 20000
+    elif 100000 > followers > 40000:
+        price = 50000
+    elif followers < 5000:
+        price = 10000
+    return price
 
 
-def role_maker(agents):
+def role_maker(agents:list):
     duelists = ['neon','raze','jett','phoenix','yoru','iso','reyna','chamber']
     controllers = ['brimstone','clove','omen','astra','harbor']
     sentinels = ['killjoy','cypher','chamber','vyse','chamber','sage','deadlock','viper']
@@ -100,7 +102,7 @@ def role_maker(agents):
 players = {}                                           # (player.name: Player)
 teams = {}                                            # (team.name: Team)
 #automating teams for the rest of the 2 regions
-def region_maker(links,players,teams):
+def region_maker(links:str,players:dict,teams:dict):
     for link in links:
         rqsts = requests.get(link)
         soup = BeautifulSoup(rqsts.content,'lxml')
@@ -129,7 +131,6 @@ def region_maker(links,players,teams):
                 agents.append(agent_name.replace('.png',''))
             role = role_maker(agents)
             prev = tr.find('div', class_ = 'stats-player-country').text.strip()
-            #href
             href_tag = tr.find('a')
             if href_tag:
                 href = href_tag.get('href')
@@ -149,14 +150,15 @@ else:
 
 
 class MyPlayer(Player):
-    def __init__(self, acs, kd, ign, prev, role, href,price):
+    def __init__(self, acs, kd, ign, prev, role, href,price=0):
         super().__init__(acs, kd, ign, prev, role, href)
         self.price = price
 
 class MyTeam(Team):
-    def __init__(self, name, squad={},matches = 0):
+    def __init__(self, name, squad={},matches = 0,wallet = 300000):
         super().__init__(name, squad)
         self.matches = matches
+        self.wallet = wallet
 
 rqsts = requests.get(region)
 soup = BeautifulSoup(rqsts.content,'lxml')
@@ -195,7 +197,7 @@ for tr in trs:
     href_tag = tr.find('a')
     if href_tag:
          href = href_tag.get('href')
-    price = price_maker(href)
+    price = price_maker(href=href)
     players[ign] = MyPlayer(kd=kd,acs=acs,href=href,prev=prev,role=role,ign=ign,price=price) 
 
 #picking up a duelist, and displaying
@@ -203,19 +205,21 @@ for key,value in players.items():
     a  = 1
     if value.role == 'duelist':
         print(f'{a}. {value.ign}')
-        print(value.price)
-        print(value.acs)
-        print(value.kd)
-        print(value.prev)
-        print(value.role)
+        print('price: $',value.price)
+        print('acs: ',value.acs)
+        print('kd: ',value.kd)
+        print('Previously with ',value.prev)
+        print('Role: ',value.role)
         a += 1
         wait()
-
+print('You have ${wallet} in your bank')
 #picking up a sentinel, and displaying
 #picking up a initiator, and displaying
 #picking up a controller, and displaying
 #picking up a flex, and displaying
 
+
+region_maker(links=links,players=players,teams=teams)
 for key,value in teams.items():
     for i in range(5):
         random_player_key = rd.choice(list(players.keys()))
