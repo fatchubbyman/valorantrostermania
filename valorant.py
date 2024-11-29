@@ -66,6 +66,20 @@ def error_manager(role,wallet=wallet,players=players):         #checking if the 
             your_team.squad[role] = players[pick.lower()]
             wallet -= players[pick.lower].price
             return f'You have purchased {players[pick].ign} for ${players[pick].price}!'
+
+def selector(role,players=players):
+    for key,value in players.items():
+        a = 1
+        if value.role == role:
+            print(f'{a}. {value.ign}')
+            print('price: $',value.price)
+            print('acs: ',value.acs)
+            print('kd: ',value.kd)
+            print('Previously with ',value.prev)
+            print('Role: ',value.role)
+            a += 1
+            wait()
+    error_manager(role=role,wallet=wallet,players=players)
         
 
 def price_maker(href:str):
@@ -214,71 +228,19 @@ for tr in trs:
     players[ign.lower()] = MyPlayer(kd=kd,acs=acs,href=href,prev=prev,role=role,ign=ign,price=price) 
 
 #picking up a duelist, and displaying
-for key,value in players.items():
-    a  = 1
-    if value.role == 'duelist':
-        print(f'{a}. {value.ign}')
-        print('price: $',value.price)
-        print('acs: ',value.acs)
-        print('kd: ',value.kd)
-        print('Previously with ',value.prev)
-        print('Role: ',value.role)
-        a += 1
-        wait()
-error_manager('duelist',wallet=wallet,players=players)
+selector(role='duelist')
 #picking up a sentinel, and displaying
 wait()
-for key,value in players.items():
-    a  = 1
-    if value.role == 'sentinel':
-        print(f'{a}. {value.ign}')
-        print('price: $',value.price)
-        print('acs: ',value.acs)
-        print('kd: ',value.kd)
-        print('Previously with ',value.prev)
-        print('Role: ',value.role)
-        a += 1
-        wait()
-error_manager('sentinel',wallet=wallet,players=players)
+selector(role='sentinel')
 #picking up a initiator, and displaying
-for key,value in players.items():
-    a  = 1
-    if value.role == 'initiator':
-        print(f'{a}. {value.ign}')
-        print('price: $',value.price)
-        print('acs: ',value.acs)
-        print('kd: ',value.kd)
-        print('Previously with ',value.prev)
-        print('Role: ',value.role)
-        a += 1
-        wait()
-error_manager('initiator',wallet=wallet,players=players)
+wait()
+selector(role='initiator')
 #picking up a controller, and displaying
-for key,value in players.items():
-    a  = 1
-    if value.role == 'controller':
-        print(f'{a}. {value.ign}')
-        print('price: $',value.price)
-        print('acs: ',value.acs)
-        print('kd: ',value.kd)
-        print('Previously with ',value.prev)
-        print('Role: ',value.role)
-        a += 1
-        wait()
-error_manager('controller',wallet=wallet,players=players)
+wait()
+selector(role='controller')
 #picking up a flex, and displaying
-for key,value in players.items():
-    a  = 1
-    if value.role == 'flex':
-        print(f'{a}. {value.ign}')
-        print('price: $',value.price)
-        print('acs: ',value.acs)
-        print('kd: ',value.kd)
-        print('Previously with ',value.prev)
-        print('Role: ',value.role)
-        a += 1
-        wait()
-error_manager('flex',wallet=wallet,players=players)
+wait()
+selector(role='flex')
 region_maker(links=links,players=players,teams=teams)
 for key,value in teams.items():
     for i in range(5):
