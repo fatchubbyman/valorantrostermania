@@ -22,7 +22,7 @@ class Team:
         self.squad = squad
 
 def follower_retriever(url,name):
-    folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'
+    folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'    # make a path with a folder you can keep the twitter htmls inside because i dont think you can extract followers from the api because its paid and this is just a personal project im sorry :(
     file_name = f'{name}.html'
     file_path = os.path.join(folder_name, file_name)
     os.makedirs(folder_name, exist_ok=True)
@@ -50,6 +50,23 @@ def convert_to_int(value: str) -> int:
         return int(float(number) * suffixes[suffix])
     else:
         return int(number)
+wallet = 300000
+players = {}                                           # (player.name: Player)
+teams = {}                                            # (team.name: Team)
+def error_manager(role,wallet=wallet,players=players):         #checking if the player costs more than the wallet and restarts the loop if the wallet is lesser than the price of the player
+    while True:
+        pick = input(f'Which {role} would you want to pick up? You have ${wallet} in your bank. ')
+        if players[pick.lower()].price > wallet:
+            print('You cannot purchase this player! ')
+            wait()
+        elif pick.lower() not in players.keys():
+            print('Invalid player name!')
+            wait()
+        else:
+            your_team.squad[role] = players[pick.lower()]
+            wallet -= players[pick.lower].price
+            return f'You have purchased {players[pick].ign} for ${players[pick].price}!'
+        
 
 def price_maker(href:str):
     url = 'https://www.vlr.gg' + href
@@ -99,8 +116,6 @@ def role_maker(agents:list):
         elif maker['sentinels'] > len(agents)/2:
             return 'sentinel'
 
-players = {}                                           # (player.name: Player)
-teams = {}                                            # (team.name: Team)
 #automating teams for the rest of the 2 regions
 def region_maker(links:str,players:dict,teams:dict):
     for link in links:
@@ -134,7 +149,7 @@ def region_maker(links:str,players:dict,teams:dict):
             href_tag = tr.find('a')
             if href_tag:
                 href = href_tag.get('href')
-            players[ign] = Player(kd=kd,acs=acs,href=href,prev=prev,role=role,ign=ign)
+            players[ign.lower()] = Player(kd=kd,acs=acs,href=href,prev=prev,role=role,ign=ign)
 
 
 links = ['https://www.vlr.gg/event/2094/champions-tour-2024-emea-stage-2/regular-season','https://www.vlr.gg/event/2005/champions-tour-2024-pacific-stage-2/regular-season','https://www.vlr.gg/event/2095/champions-tour-2024-americas-stage-2/regular-season']
@@ -155,18 +170,16 @@ class MyPlayer(Player):
         self.price = price
 
 class MyTeam(Team):
-    def __init__(self, name, squad={},matches = 0,wallet = 300000):
+    def __init__(self, name, squad={}):
         super().__init__(name, squad)
-        self.matches = matches
-        self.wallet = wallet
 
 rqsts = requests.get(region)
 soup = BeautifulSoup(rqsts.content,'lxml')
 # display teams and then select a team and make the others into team objects
 team_body = soup.find('div', class_ = 'event-teams-container')
 teams_for_display = team_body.find_all('a',class_ = 'wf-module-item event-team-name')
-for i in range(len(teams_for_display)):
-    print(f'{i+1} {teams_for_display[i].text.strip()}')
+for i in range(1,len(teams_for_display)+1):
+    print(f'{i} {teams_for_display[i].text.strip()}')
     print('.')
 team_choice = input('Which team would you like to play as? (enter the team number)')
 your_team = MyTeam(name = teams_for_display[team_choice].text.strip())
@@ -198,7 +211,7 @@ for tr in trs:
     if href_tag:
          href = href_tag.get('href')
     price = price_maker(href=href)
-    players[ign] = MyPlayer(kd=kd,acs=acs,href=href,prev=prev,role=role,ign=ign,price=price) 
+    players[ign.lower()] = MyPlayer(kd=kd,acs=acs,href=href,prev=prev,role=role,ign=ign,price=price) 
 
 #picking up a duelist, and displaying
 for key,value in players.items():
@@ -212,13 +225,60 @@ for key,value in players.items():
         print('Role: ',value.role)
         a += 1
         wait()
-print('You have ${wallet} in your bank')
+error_manager('duelist',wallet=wallet,players=players)
 #picking up a sentinel, and displaying
+wait()
+for key,value in players.items():
+    a  = 1
+    if value.role == 'sentinel':
+        print(f'{a}. {value.ign}')
+        print('price: $',value.price)
+        print('acs: ',value.acs)
+        print('kd: ',value.kd)
+        print('Previously with ',value.prev)
+        print('Role: ',value.role)
+        a += 1
+        wait()
+error_manager('sentinel',wallet=wallet,players=players)
 #picking up a initiator, and displaying
+for key,value in players.items():
+    a  = 1
+    if value.role == 'initiator':
+        print(f'{a}. {value.ign}')
+        print('price: $',value.price)
+        print('acs: ',value.acs)
+        print('kd: ',value.kd)
+        print('Previously with ',value.prev)
+        print('Role: ',value.role)
+        a += 1
+        wait()
+error_manager('initiator',wallet=wallet,players=players)
 #picking up a controller, and displaying
+for key,value in players.items():
+    a  = 1
+    if value.role == 'controller':
+        print(f'{a}. {value.ign}')
+        print('price: $',value.price)
+        print('acs: ',value.acs)
+        print('kd: ',value.kd)
+        print('Previously with ',value.prev)
+        print('Role: ',value.role)
+        a += 1
+        wait()
+error_manager('controller',wallet=wallet,players=players)
 #picking up a flex, and displaying
-
-
+for key,value in players.items():
+    a  = 1
+    if value.role == 'flex':
+        print(f'{a}. {value.ign}')
+        print('price: $',value.price)
+        print('acs: ',value.acs)
+        print('kd: ',value.kd)
+        print('Previously with ',value.prev)
+        print('Role: ',value.role)
+        a += 1
+        wait()
+error_manager('flex',wallet=wallet,players=players)
 region_maker(links=links,players=players,teams=teams)
 for key,value in teams.items():
     for i in range(5):
