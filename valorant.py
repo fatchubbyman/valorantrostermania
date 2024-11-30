@@ -24,10 +24,13 @@ class Team:
         self.squad = squad
 
 def follower_retriever(url, name):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
+    options = Options()
+    options.add_argument("--headless")  
+    options.add_argument("--disable-gpu")  
+    options.add_argument("--no-sandbox")  
+    options.add_argument("--disable-dev-shm-usage") 
+    options.add_argument("--window-size=1920,1080") 
+    options.add_argument("log-level=3")  
     service = Service() 
     driver = webdriver.Chrome()
     driver.get(url)
@@ -52,8 +55,8 @@ def wait():
         time.sleep(0.4)
 
 wallet = 300000
-players = {}                                           # (player.name: Player)
-teams = {}                                            # (team.name: Team)
+players = {}                                                  # (player.name: Player)
+teams = {}                                                     # (team.name: Team)
 def error_manager(role,wallet=wallet,players=players):         #checking if the player costs more than the wallet and restarts the loop if the wallet is lesser than the price of the player
     while True:
         pick = input(f'Which {role} would you want to pick up? You have ${wallet} in your bank. ')
@@ -91,6 +94,8 @@ def price_maker(href:str):
     a_tag = soup.find('a', style ='margin-top: 3px; display: block;')
     twitter = a_tag.get('href')
     socialblade = twitter.replace('https://x.com/','https://socialblade.com/twitter/user/')
+    if href == '/player/9735/2ge':                                              #exceptions
+        socialblade = 'https://socialblade.com/twitter/user/secret_2ge'
     followers = follower_retriever(url=socialblade,name=name)
     followers = int(followers.replace(',',''))
     if followers > 100000:
