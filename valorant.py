@@ -1,9 +1,11 @@
-                                              #nested dictionaries of objects
 import random as rd
 from bs4 import BeautifulSoup
 import requests
 import time
 import os
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 
 class Player:
     
@@ -21,22 +23,28 @@ class Team:
         self.name = name
         self.squad = squad
 
-def follower_retriever(url,name):
-    folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'    # make a path with a folder you can keep the twitter htmls inside because i dont think you can extract followers from the api because its paid and this is just a personal project im sorry :(
+def follower_retriever(url, name):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    service = Service() 
+    driver = webdriver.Chrome()
+    driver.get(url)
+    time.sleep(5)  
+    folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'
     file_name = f'{name}.html'
     file_path = os.path.join(folder_name, file_name)
     os.makedirs(folder_name, exist_ok=True)
-    response = requests.get(url)
-    if os.path.exists(file_path):
-        os.remove(file_path)
     with open(file_path, 'w', encoding='utf-8') as file:
-        file.write(response.text)
+        file.write(driver.page_source)
+    driver.quit() 
     with open(file_path, 'r', encoding='utf-8') as file:
-        soup = BeautifulSoup(file,'lxml')
-        div_tag = soup.find('div', class_ = 'css-175oi2r r-13awgt0 r-18u37iz r-1w6e6rj')
-        a_tag = div_tag.find('a', class_ = 'css-146c3p1 r-bcqeeo r-1ttztb7 r-qvutc0 r-37j5jr r-a023e6 r-rjixqe r-16dba41 r-1loqt21')
-        followers = a_tag.find('span', class_ = 'css-1jxf684 r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3').text.strip()
-        return followers
+        soup = BeautifulSoup(file, 'lxml')
+        div_tag = soup.find('div', id = 'YouTubeUserTopInfoBlockTop')
+        div = div_tag.find('div', class_ = 'YouTubeUserTopInfo')
+        followers = div.find('span', style = 'font-weight: bold;').text.strip()
+    return followers
 
 def wait():
     for i in range(2):
@@ -89,7 +97,8 @@ def price_maker(href:str):
     name = soup.find('h1', class_ = 'wf-title').text.strip()
     a_tag = soup.find('a', style ='margin-top: 3px; display: block;')
     twitter = a_tag.get('href')
-    followers = follower_retriever(twitter,name)
+    socialblade = twitter.replace('https://x.com/','https://socialblade.com/twitter/user/')
+    followers = follower_retriever(url=socialblade,name=name)
     followers = convert_to_int(followers)
     if followers > 100000:
         price = 100000
@@ -147,7 +156,11 @@ def region_maker(links:str,players:dict,teams:dict):
         trs = soup.find_all('tr')
         for tr in trs:
             agents = []
-            ign = tr.find('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;').text.strip()
+            ign = tr.find('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;')
+            if ign:
+                ign = ign.text.strip()
+            else:
+                continue
             data = tr.find_all('td')
             acs = float(data[4].text.strip())
             kd = float(data[5].text.strip())
@@ -169,14 +182,13 @@ def region_maker(links:str,players:dict,teams:dict):
 links = ['https://www.vlr.gg/event/2094/champions-tour-2024-emea-stage-2/regular-season','https://www.vlr.gg/event/2005/champions-tour-2024-pacific-stage-2/regular-season','https://www.vlr.gg/event/2095/champions-tour-2024-americas-stage-2/regular-season']
 wait()
 region_select = input('What region would you like to represent? (emea,apac,americas)')
+# your own region process
 if region_select == 'emea':
     region = links.pop(0)
 elif region_select == 'apac':
     region = links.pop(1)
 else:
     region = links.pop(2)
-# your own region process
-
 
 class MyPlayer(Player):
     def __init__(self, acs, kd, ign, prev, role, href,price=0):
@@ -192,10 +204,10 @@ soup = BeautifulSoup(rqsts.content,'lxml')
 # display teams and then select a team and make the others into team objects
 team_body = soup.find('div', class_ = 'event-teams-container')
 teams_for_display = team_body.find_all('a',class_ = 'wf-module-item event-team-name')
-for i in range(1,len(teams_for_display)+1):
-    print(f'{i} {teams_for_display[i].text.strip()}')
+for i in range(len(teams_for_display)):
+    print(f'{i+1} {teams_for_display[i].text.strip()}')
     print('.')
-team_choice = input('Which team would you like to play as? (enter the team number)')
+team_choice = int(input('Which team would you like to play as? (enter the team number)'))
 your_team = MyTeam(name = teams_for_display[team_choice].text.strip())
 for team in teams_for_display:
     if team.text.strip() is not your_team.name:
@@ -203,11 +215,15 @@ for team in teams_for_display:
 stats_link = region.replace('/event','/event/stats')
 stats_link = stats_link.replace('/regular-season','')
 rqsts = requests.get(stats_link)
-soup = BeautifulSoup(rqsts,'lxml')
+soup = BeautifulSoup(rqsts.content,'lxml')
 trs = soup.find_all('tr')
 for tr in trs:
     agents = []
-    ign = tr.find('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;').text.strip()
+    ign = tr.find('div', style = 'font-weight: 700; margin-bottom: 2px; width: 90px;')
+    if ign:
+        ign = ign.text.strip()
+    else:
+        continue
     data = tr.find_all('td')
     acs = float(data[4].text.strip())
     kd = float(data[5].text.strip())
