@@ -32,7 +32,7 @@ def follower_retriever(url, name):
     driver = webdriver.Chrome()
     driver.get(url)
     time.sleep(5)  
-    folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'
+    folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'         # keep a path where you can store htmls
     file_name = f'{name}.html'
     file_path = os.path.join(folder_name, file_name)
     os.makedirs(folder_name, exist_ok=True)
