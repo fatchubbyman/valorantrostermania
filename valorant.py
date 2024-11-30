@@ -31,7 +31,7 @@ def follower_retriever(url, name):
     service = Service() 
     driver = webdriver.Chrome()
     driver.get(url)
-    time.sleep(5)  
+    time.sleep(2)  
     folder_name = '/Users/jatin/Documents/python/python projects/valorant2025/twitters'         # keep a path where you can store htmls
     file_name = f'{name}.html'
     file_path = os.path.join(folder_name, file_name)
@@ -51,13 +51,6 @@ def wait():
         print('.')
         time.sleep(0.4)
 
-def convert_to_int(value: str) -> int:
-    suffixes = {'K': 10**3, 'M': 10**6, 'B': 10**9}
-    number, suffix = value[:-1], value[-1].upper()
-    if suffix in suffixes:
-        return int(float(number) * suffixes[suffix])
-    else:
-        return int(number)
 wallet = 300000
 players = {}                                           # (player.name: Player)
 teams = {}                                            # (team.name: Team)
@@ -99,7 +92,7 @@ def price_maker(href:str):
     twitter = a_tag.get('href')
     socialblade = twitter.replace('https://x.com/','https://socialblade.com/twitter/user/')
     followers = follower_retriever(url=socialblade,name=name)
-    followers = convert_to_int(followers)
+    followers = int(followers.replace(',',''))
     if followers > 100000:
         price = 100000
     elif 40000 > followers > 5000:
@@ -208,7 +201,9 @@ for i in range(len(teams_for_display)):
     print(f'{i+1} {teams_for_display[i].text.strip()}')
     print('.')
 team_choice = int(input('Which team would you like to play as? (enter the team number)'))
-your_team = MyTeam(name = teams_for_display[team_choice].text.strip())
+your_team = MyTeam(name = teams_for_display[team_choice-1].text.strip())
+print(f'You have chosen {your_team.name} as your team!')
+wait()
 for team in teams_for_display:
     if team.text.strip() is not your_team.name:
         teams[team.text.strip()] = Team(name= team.text.strip())
@@ -263,5 +258,11 @@ for key,value in teams.items():
         random_player_key = rd.choice(list(players.keys()))
         random_player_object = players.pop(random_player_key)
         value.squad[random_player_key] = random_player_object
+
+#tournament
+# pick a team from every team key randomly
+# run a for loop of a 5 range and compare acs and find out winners
+# 33 teams 16 games 8 games 4 games 2 games 
+teams_in_contention = {}
 
 
